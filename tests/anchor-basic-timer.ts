@@ -37,9 +37,7 @@ describe('anchor-basic-timer', () => {
   });
 
   it('Initialize Timer', async () => {
-
-    //await delay(4000);
-
+    // Initialize the timer
     await provider.connection.confirmTransaction(
       await program.rpc.initializeTimer(
         user1TimerBump ,{
@@ -58,5 +56,33 @@ describe('anchor-basic-timer', () => {
     console.log("Initialized Timestamp: ", initializedTimestamp.toNumber());
   });
 
+  it('Run timer and log result', async () => {
+    // Start timer
+    await provider.connection.confirmTransaction(
+      await program.rpc.startTimer({
+          accounts: {
+            timer: user1TimerAddress,
+          }
+      })
+    );
+
+    // Wait 9000 ms 
+    await delay(9000);
+
+    // Stop timer
+    await provider.connection.confirmTransaction(
+      await program.rpc.stopTimer({
+          accounts: {
+            timer: user1TimerAddress,
+          }
+      })
+    );
+
+    let timer = await program.account.timer.fetch(user1TimerAddress);
+
+    let elapsedTime = timer.stopTime.toNumber() - timer.startTime.toNumber();
+    console.log("Elapsed Time: ", elapsedTime);
+
+  });
 
 });
